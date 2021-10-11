@@ -45,4 +45,51 @@ const map = [
     context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   }
 
+  function renderMinimap() {
+      let step = 0;
+      let nextRow = 0;
+      for (let i = 0; i < map.length; i++) {
+          for(let j = 0; j < map.length; j++) {
+              if(map[i][j] == 1) {
+                context.fillStyle = "blue";
+                context.fillRect(CELL_SIZE * step, nextRow, CELL_SIZE, CELL_SIZE);
+
+            }
+            step++;
+          }
+          step = 0;
+          nextRow += CELL_SIZE; 
+        
+      }
+  }
+
+  function renderPlayerOnMinimap() {
+    context.fillStyle = "green";
+    context.fillRect(player.x, player.y, 12, 12);
+  }
   
+  setInterval(gameLoop, 16.66);
+
+  function gameLoop() {
+    clearScreen();
+    renderMinimap();
+    renderPlayerOnMinimap(); 
+  }
+
+
+
+document.addEventListener("keydown", movePlayer);
+
+function movePlayer(key) {
+    console.log(key.code);
+    if(key.code == "KeyD") {
+        player.x += 6; 
+    } else if(key.code == "KeyA") {
+        player.x -= 6; 
+    } else if(key.code == "KeyW") {
+        player.y -= 6;
+    } else if(key.code == "KeyS") {
+        player.y += 6; 
+    }
+}
+
