@@ -80,7 +80,7 @@ const map = [
     clearScreen();
     renderMinimap();
     renderPlayerOnMinimap(); 
-    drawAngleLine(); 
+    //drawAngleLine(); 
     castRays();
     
   }
@@ -103,37 +103,42 @@ function drawAngleLine() {
 }
 
 function castRays() {
-    for (let i = 0; i < SCREEN_WIDTH / 8; i++) {
+    for (let i = 0; i < SCREEN_WIDTH; i++) {
         context.beginPath();
         context.moveTo(player.x + 6, player.y + 6)
-        context.lineTo(player.x + Math.cos(player.angle + toRadians(i)) * 120, player.y + Math.sin(player.angle + toRadians(i)) * 120);
+        context.lineTo(player.x + Math.cos(player.angle + toRadians(i * 0.1)) * 120, player.y + Math.sin(player.angle + toRadians(i * 0.1)) * 120);
         context.stroke();
-        let angle = toRadians(player.angle * 180 / Math.PI + i); 
-        shootRay(angle);
+        // let angle = toRadians(player.angle * 180 / Math.PI + i); 
+        // shootRay(angle);
     }
 }
 
-let rays = []; 
-function shootRay(angle) {
-    context.fillStyle = "orange";
-    context.fillRect(player.x + 6, player.y + 6, 5, 5);
-    let ray = {
-        x: player.x + 6, 
-        y: player.y + 6,
-        angle: toRadians(angle)
-    }
+// let rays = []; 
+// function shootRay(angle) {
+//     context.fillStyle = "orange";
+//     context.fillRect(player.x + 6, player.y + 6, 5, 5);
+//     let ray = {
+//         x: player.x + 6, 
+//         y: player.y + 6,
+//         angle: toRadians(angle)
+//     }
     
-    rays.push(ray);
-    moveRays();
-    console.log(rays.length);
-}
+//     rays.push(ray);
+//     moveRays();
+//     console.log(rays.length);
+// }
 
-function moveRays() {
-    for (let i = 0; i < rays.length; i++) {
-        context.fillStyle = "orange";
-        context.fillRect(player.x + Math.cos(rays[i].angle + toRadians(i)) * 1, player.y + Math.sin(rays[i].angle + toRadians(i)) * 1, 5, 5);
-    }
-}
+// function moveRays() {
+//     for (let i = 0; i < rays.length; i++) {
+//       for(let j = 0; j < 100; j++) {
+//           context.fillStyle = "orange";
+//           context.fillRect(player.x + Math.cos(rays[i].angle + toRadians(i)) * j, player.y + Math.sin(rays[i].angle + toRadians(i)) * j, 2, 2);
+//       }
+//         // rays[i].x += player.x + Math.cos(rays[i].angle + toRadians(i)) * 1; 
+//         // context.fillStyle = "orange";
+//         // context.fillRect(player.x + Math.cos(rays[i].angle + toRadians(i)) * 1, player.y + Math.sin(rays[i].angle + toRadians(i)) * 1, 5, 5);
+//     }
+// }
 
 function movePlayer(key) {
     console.log(key.code);
