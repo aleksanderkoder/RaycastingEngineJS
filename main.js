@@ -92,7 +92,7 @@ document.addEventListener("keydown", movePlayer);
 document.addEventListener("mousemove", moveAngle);
 
 function moveAngle(e) {
-    player.angle += toRadians(e.movementX); 
+    player.angle += toRadians(e.movementX / 3); 
 }
 
 function drawAngleLine() {
@@ -104,13 +104,24 @@ function drawAngleLine() {
 
 function castRays() {
     for (let i = 0; i < SCREEN_WIDTH; i++) {
+        let angleX = player.x + Math.cos(player.angle + toRadians(i * 0.02)) * 120;
+        let angleY = player.y + Math.sin(player.angle + toRadians(i * 0.02)) * 120; 
         context.beginPath();
         context.moveTo(player.x + 6, player.y + 6)
-        context.lineTo(player.x + Math.cos(player.angle + toRadians(i * 0.1)) * 120, player.y + Math.sin(player.angle + toRadians(i * 0.1)) * 120);
+        context.lineTo(player.x + Math.cos(player.angle + toRadians(i * 0.02)) * 120, player.y + Math.sin(player.angle + toRadians(i * 0.02)) * 120);
         context.stroke();
+        let ray = new Ray(angleX, angleY); // Send this to array to track rays and to "shoot" them in another function
+
         // let angle = toRadians(player.angle * 180 / Math.PI + i); 
         // shootRay(angle);
     }
+}
+
+class Ray {
+  constructor(angleX, angleY) {
+    this.angleX = angleX;
+    this.angleY = angleY;
+  }
 }
 
 // let rays = []; 
