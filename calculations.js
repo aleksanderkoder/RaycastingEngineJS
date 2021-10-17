@@ -23,12 +23,12 @@ function getDistance(x1, y1, x2, y2){
       // optionally, draw a circle where the lines meet
       let intersectionX = x1 + (uA * (x2-x1));
       let intersectionY = y1 + (uA * (y2-y1));
-      context.beginPath();
-      context.strokeStyle = "orange";
-      context.arc(intersectionX,intersectionY, 2, 0, 2 * Math.PI);
-      context.stroke();
+      // ctx.beginPath();
+      // ctx.strokeStyle = "orange";
+      // ctx.arc(intersectionX,intersectionY, 2, 0, 2 * Math.PI);
+      // ctx.stroke();
   
-      return collisionObject = {intersectionDist1: uA, intersectionDist2: uB};  // Use these values to determine projection slice height
+      return collisionPoint = {x: intersectionX, y: intersectionY};  // Use these values to determine projection slice height
     }
     return null;
   }
