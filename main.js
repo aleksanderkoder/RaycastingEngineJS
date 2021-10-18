@@ -31,6 +31,9 @@ const player = {
   angle: toRadians(0),
 };
 
+let MouseX;
+let MouseY;
+
 function toRadians(deg) {
   return (deg * Math.PI) / 180;
 }
@@ -186,7 +189,36 @@ function movePlayer(key) {
     player.y -= 6;
   } else if (key.code == "KeyS") {
     player.y += 6;
+  } else if(key.code == "Space") {
+    initilizeMapMaker();
   }
+}
+
+let mmConfirm = 0; 
+let oldMouseX, oldMouseY;
+function initilizeMapMaker() {
+  if(mmConfirm == 0) {
+    oldMouseX = MouseX;
+    oldMouseY = MouseY;
+  }
+  mmConfirm++;
+  if(mmConfirm == 1) {
+    ctx.beginPath();
+    ctx.moveTo(MouseX, MouseY);
+    ctx.lineTo(MouseX, MouseY);
+    ctx.stroke(); 
+
+    requestAnimationFrame(initilizeMapMaker)
+  } else if(mmConfirm == 2) {
+    mmConfirm = 0;
+    createWall(oldMouseX, oldMouseY, MouseX, MouseY); 
+  }
+  
+}
+
+function updateMousePosition(e) {
+  MouseX = e.clientX;
+  MouseY = e.clientY;
 }
 
 canvas.onclick = () => {
@@ -197,3 +229,5 @@ canvas.onclick = () => {
 document.addEventListener("keydown", movePlayer);
 
 document.addEventListener("mousemove", moveAngle);
+
+document.addEventListener("mousemove", updateMousePosition);
