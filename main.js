@@ -8,8 +8,10 @@ const map = [
   [1, 1, 1, 1, 1, 1, 1],
 ];
 
-const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
+// const SCREEN_WIDTH = window.innerWidth;
+// const SCREEN_HEIGHT = window.innerHeight;
+const SCREEN_WIDTH = 600;
+const SCREEN_HEIGHT = 600;
 
 const TICK = 30;
 
@@ -39,51 +41,68 @@ function toRadians(deg) {
 }
 
 const canvas = document.createElement("canvas");
+canvas.style.position = "absolute";
+canvas.style.left = "650px";
+canvas.style.border = "2px solid white";
 canvas.setAttribute("width", SCREEN_WIDTH);
 canvas.setAttribute("height", SCREEN_HEIGHT);
 document.body.appendChild(canvas);
 
-const ctx = canvas.getContext("2d", { alpha: false });
+const ctx = canvas.getContext("2d");
+
+const canvasUI = document.createElement("canvas");
+canvasUI.style.position = "absolute";
+canvasUI.style.left = "0px";
+canvasUI.style.border = "2px solid white";
+canvasUI.setAttribute("width", SCREEN_WIDTH);
+canvasUI.setAttribute("height", SCREEN_HEIGHT);
+document.body.appendChild(canvasUI);
+
+const ctxUI = canvasUI.getContext("2d");
 
 createWall(300, 600, 700, 1300); // For testing
 createWall(50, 400, 200, 670);
 createWall(200, 900, 900, 800);
 createWall(200, 600, 700, 500);
 
+//setInterval(gameLoop, 1000 / TICK);
+requestAnimationFrame(gameLoop);
+
+function gameLoop() {
+  clearScreen();
+  //drawAngleLine();
+  //renderMinimap();
+  castRays();
+  renderPlayerOnMinimap();
+  displayFPS();
+  displayWalls();
+  //mapLines = [];
+  requestAnimationFrame(gameLoop);
+}
+
 function clearScreen() {
-  ctx.fillStyle = "purple";
+  ctx.fillStyle = "black";
   ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  ctxUI.fillStyle = "black";
+  ctxUI.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 function renderMinimap() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, 224, 224);
+  ctxUI.fillStyle = "white";
+  ctxUI.fillRect(0, 0, 224, 224);
   let step = 0;
   let row = 0;
   for (let i = 0; i < map.length; i++) {
     for (let j = 0; j < map.length; j++) {
       if (map[i][j] == 1) {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(CELL_SIZE * step, row, CELL_SIZE - 1, CELL_SIZE - 1);
+        ctxUI.fillStyle = "blue";
+        ctxUI.fillRect(CELL_SIZE * step, row, CELL_SIZE - 1, CELL_SIZE - 1);
       }
       step++;
     }
     step = 0;
     row += CELL_SIZE;
   }
-}
-
-//setInterval(gameLoop, 1000 / TICK); 
-requestAnimationFrame(gameLoop);  
-
-function gameLoop() {
-  clearScreen();
-  //drawAngleLine();
-  renderMinimap();
-  castRays();
-  renderPlayerOnMinimap();
-  displayFPS();
-  requestAnimationFrame(gameLoop);
 }
 
 function moveAngle(e) {
@@ -101,25 +120,24 @@ function drawAngleLine() {
 }
 
 function renderPlayerOnMinimap() {
-  ctx.fillStyle = "green";
-  ctx.fillRect(player.x, player.y, 12, 12);
+  ctxUI.fillStyle = "green";
+  ctxUI.fillRect(player.x, player.y, 12, 12);
 }
 
 function castRays() {
   // One loop for each pixel of screen resolution width
-  ctx.beginPath();
-  ctx.strokeStyle = "black";
+  
   for (let i = 0; i < SCREEN_WIDTH; i++) {
-    let angleX = Math.round(
-      player.x + Math.cos(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE
-    );
-    let angleY = Math.round(
-      player.y + Math.sin(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE
-    );
-
-    ctx.moveTo(player.x + 6, player.y + 6);
-    ctx.lineTo(angleX, angleY);
-
+    let angleX =
+      player.x + Math.cos(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE;
+    let angleY =
+      player.y + Math.sin(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE;
+    ctxUI.beginPath();
+    ctxUI.strokeStyle = "white";
+    ctxUI.moveTo(player.x + 6, player.y + 6);
+    ctxUI.lineTo(angleX, angleY);
+    ctxUI.stroke();
+    ctxUI.closePath();
     // let angleDeg = (player.angle * 180) / Math.PI;
 
     for (let j = 0; j < mapLines.length; j++) {
@@ -138,18 +156,25 @@ function castRays() {
       );
     }
   }
-  ctx.stroke();
+  
 }
 
 // Rendering of scene starts here
-function renderSceneSlice(collisionPoint, drawPoint, angle) { // Fix fish eye effect!!!
+function renderSceneSlice(collisionPoint, drawPoint, angle) {
+  // Fix fish eye effect!!!
   if (collisionPoint) {
     // Ray hits wall
-    ctx.fillStyle = "blue";
-    let colDist = getDistance(player.x, player.y, collisionPoint.x, collisionPoint.y);
+    let colDist = getDistance(
+      player.x,
+      player.y,
+      collisionPoint.x,
+      collisionPoint.y
+    ) * 3;
+    let colorShade = 255 - colDist / 2; // Gives slice darker color the further away the wall is
+    ctx.fillStyle = "rgb(" + colorShade + ", " + colorShade + ", " + colorShade + ")";
     // colDist = colDist * Math.cos(angle);
-    let sliceVerticalOffset = colDist / 2; 
-    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - colDist); 
+    let sliceVerticalOffset = colDist / 2;
+    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - colDist);
   }
 }
 
@@ -160,15 +185,16 @@ function displayFPS() {
   lastLoop = thisLoop;
   ctx.font = "30px Arial";
   ctx.fillStyle = "green";
-  ctx.fillText("FPS: " + fps, SCREEN_WIDTH - 250, 50);
+  ctx.fillText("FPS: " + fps, SCREEN_WIDTH - 150, 50);
 }
 
 function createWall(moveToX, moveToY, lineToX, lineToY) {
-  ctx.beginPath();
-  ctx.strokeStyle = "black";
-  ctx.moveTo(moveToX, moveToY);
-  ctx.lineTo(lineToX, lineToY);
-  ctx.stroke();
+  ctxUI.beginPath();
+  ctxUI.strokeStyle = "black";
+  ctxUI.moveTo(moveToX, moveToY);
+  ctxUI.lineTo(lineToX, lineToY);
+  ctxUI.stroke();
+  ctxUI.closePath();
   let newWall = {
     moveToX: moveToX,
     moveToY: moveToY,
@@ -187,33 +213,50 @@ function movePlayer(key) {
     player.x -= 6;
   } else if (key.code == "KeyW") {
     player.y -= 6;
-  } else if (key.code == "KeyS") {
+  } else if (key.code == "KeyS") { 
     player.y += 6;
-  } else if(key.code == "Space") {
-    initilizeMapMaker();
+  } else if (key.code == "Space") {
+    // if(key.repeat) return;
+
+    initializeMapMaker();
   }
 }
 
-let mmConfirm = 0; 
+function displayWalls() {
+  for (let i = 0; i < mapLines.length; i++) {
+    ctxUI.beginPath();
+    ctxUI.strokeStyle = "white";
+    ctxUI.moveTo(mapLines[i].moveToX, mapLines[i].moveToY);
+    ctxUI.lineTo(mapLines[i].lineToX, mapLines[i].lineToY);
+    ctxUI.stroke();
+    ctxUI.closePath();
+  }
+}
+
+let mmConfirm = 0;
 let oldMouseX, oldMouseY;
-function initilizeMapMaker() {
-  if(mmConfirm == 0) {
+function initializeMapMaker() {
+  mmConfirm++;
+  if (mmConfirm == 1) {
     oldMouseX = MouseX;
     oldMouseY = MouseY;
-  }
-  mmConfirm++;
-  if(mmConfirm == 1) {
-    ctx.beginPath();
-    ctx.moveTo(MouseX, MouseY);
-    ctx.lineTo(MouseX, MouseY);
-    ctx.stroke(); 
-
-    requestAnimationFrame(initilizeMapMaker)
-  } else if(mmConfirm == 2) {
+    requestAnimationFrame(previewWall);
+    console.log("step 1");
+  } else if (mmConfirm == 2) {
+    createWall(oldMouseX, oldMouseY, MouseX, MouseY);
+    console.log("step 2");
     mmConfirm = 0;
-    createWall(oldMouseX, oldMouseY, MouseX, MouseY); 
   }
-  
+}
+
+function previewWall() {
+  if (mmConfirm == 1) {
+    ctxUI.beginPath();
+    ctxUI.moveTo(oldMouseX, oldMouseY);
+    ctxUI.lineTo(MouseX, MouseY);
+    ctxUI.stroke();
+    requestAnimationFrame(previewWall);
+  }
 }
 
 function updateMousePosition(e) {
@@ -221,9 +264,10 @@ function updateMousePosition(e) {
   MouseY = e.clientY;
 }
 
+// Locks mouse pointer to window
 canvas.onclick = () => {
   canvas.requestPointerLock();
-}
+};
 
 // EVENTS
 document.addEventListener("keydown", movePlayer);
