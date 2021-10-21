@@ -71,7 +71,7 @@ requestAnimationFrame(gameLoop);
 function gameLoop() {
   clearScreen();
   //drawAngleLine();
-  //renderMinimap();
+  renderMinimap();
   castRays();
   renderPlayerOnMinimap();
   displayFPS();
@@ -90,18 +90,13 @@ function clearScreen() {
 function renderMinimap() {
   ctxUI.fillStyle = "white";
   ctxUI.fillRect(0, 0, 224, 224);
-  let step = 0;
-  let row = 0;
   for (let i = 0; i < map.length; i++) {
     for (let j = 0; j < map.length; j++) {
       if (map[i][j] == 1) {
         ctxUI.fillStyle = "blue";
-        ctxUI.fillRect(CELL_SIZE * step, row, CELL_SIZE - 1, CELL_SIZE - 1);
+        ctxUI.fillRect(CELL_SIZE * j, i * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1);
       }
-      step++;
     }
-    step = 0;
-    row += CELL_SIZE;
   }
 }
 
