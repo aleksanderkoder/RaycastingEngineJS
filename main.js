@@ -12,11 +12,12 @@ const map = [
 // const SCREEN_HEIGHT = window.innerHeight;
 const SCREEN_WIDTH = 600;
 const SCREEN_HEIGHT = 600;
+const FOV = 60; 
 
 const TICK = 30;
 
 const CELL_SIZE = 32;
-const SIGHT_DISTANCE = 120;
+const SIGHT_DISTANCE = 200;
 let mapLines = [];
 
 const COLORS = {
@@ -70,9 +71,9 @@ requestAnimationFrame(gameLoop);
 
 function gameLoop() {
   clearScreen();
-  //drawAngleLine();
-  renderMinimap();
-  castRays();
+  
+  //renderMinimap();
+  castRays();drawAngleLine();
   renderPlayerOnMinimap();
   displayFPS();
   displayWalls();
@@ -105,13 +106,14 @@ function moveAngle(e) {
 }
 
 function drawAngleLine() {
-  ctx.beginPath();
-  ctx.moveTo(player.x + 6, player.y + 6);
-  ctx.lineTo(
-    Math.floor(player.x + Math.cos(player.angle) * 20),
-    Math.floor(player.y + Math.sin(player.angle) * 20)
+  ctxUI.beginPath();
+  ctxUI.strokeStyle = "magenta";
+  ctxUI.moveTo(player.x + 6, player.y + 6);
+  ctxUI.lineTo(
+    Math.floor(player.x + Math.cos(player.angle) * 40),
+    Math.floor(player.y + Math.sin(player.angle) * 40)
   );
-  ctx.stroke();
+  ctxUI.stroke();
 }
 
 function renderPlayerOnMinimap() {
@@ -120,20 +122,21 @@ function renderPlayerOnMinimap() {
 }
 
 function castRays() {
+  let step = FOV / SCREEN_WIDTH;
   // One loop for each pixel of screen resolution width
-  
   for (let i = 0; i < SCREEN_WIDTH; i++) {
+
     let angleX =
-      player.x + Math.cos(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE;
+      player.x + Math.cos(player.angle + toRadians(step * i)) * SIGHT_DISTANCE;
     let angleY =
-      player.y + Math.sin(player.angle + toRadians(i * 0.05)) * SIGHT_DISTANCE;
+      player.y + Math.sin(player.angle + toRadians(step * i)) * SIGHT_DISTANCE;
+
     ctxUI.beginPath();
     ctxUI.strokeStyle = "white";
     ctxUI.moveTo(player.x + 6, player.y + 6);
     ctxUI.lineTo(angleX, angleY);
     ctxUI.stroke();
     ctxUI.closePath();
-    // let angleDeg = (player.angle * 180) / Math.PI;
 
     for (let j = 0; j < mapLines.length; j++) {
       renderSceneSlice(
@@ -160,16 +163,17 @@ function renderSceneSlice(collisionPoint, drawPoint, angle) {
   if (collisionPoint) {
     // Ray hits wall
     let colDist = getDistance(
-      player.x,
-      player.y,
+      player.x + 6,
+      player.y + 6,
       collisionPoint.x,
       collisionPoint.y
     ) * 3;
-    let colorShade = 255 - colDist / 2; // Gives slice darker color the further away the wall is
+    let correctDist =  colDist * Math.cos(toRadians(45)); // Trying to fix fish eye, but doesn't work
+    let colorShade = 255 - colDist / 2.5; // Gives slice darker color the further away the wall is
     ctx.fillStyle = "rgb(" + colorShade + ", " + colorShade + ", " + colorShade + ")";
     // colDist = colDist * Math.cos(angle);
-    let sliceVerticalOffset = colDist / 2;
-    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - colDist);
+    let sliceVerticalOffset = correctDist / 2;
+    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - correctDist);
   }
 }
 
@@ -228,24 +232,24 @@ function displayWalls() {
   }
 }
 
-let mmConfirm = 0;
+let drawIndex = 0;
 let oldMouseX, oldMouseY;
 function initializeMapMaker() {
-  mmConfirm++;
-  if (mmConfirm == 1) {
+  drawIndex++;
+  if (drawIndex == 1) {
     oldMouseX = MouseX;
     oldMouseY = MouseY;
     requestAnimationFrame(previewWall);
     console.log("step 1");
-  } else if (mmConfirm == 2) {
+  } else if (drawIndex == 2) {
     createWall(oldMouseX, oldMouseY, MouseX, MouseY);
     console.log("step 2");
-    mmConfirm = 0;
+    drawIndex = 0;
   }
 }
 
 function previewWall() {
-  if (mmConfirm == 1) {
+  if (drawIndex == 1) {
     ctxUI.beginPath();
     ctxUI.moveTo(oldMouseX, oldMouseY);
     ctxUI.lineTo(MouseX, MouseY);
