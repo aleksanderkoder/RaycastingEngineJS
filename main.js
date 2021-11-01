@@ -41,6 +41,10 @@ function toRadians(deg) {
   return (deg * Math.PI) / 180;
 }
 
+function toDegrees(rad) {
+  return (rad * 180) / Math.PI;
+}
+
 const canvas = document.createElement("canvas");
 canvas.style.position = "absolute";
 canvas.style.left = "650px";
@@ -103,6 +107,7 @@ function renderMinimap() {
 
 function moveAngle(e) {
   player.angle += toRadians(e.movementX / 3);
+  console.log(toDegrees(player.angle));
 }
 
 function drawAngleLine() {
@@ -130,13 +135,16 @@ function castRays() {
       player.x + Math.cos(player.angle + toRadians(step * i)) * SIGHT_DISTANCE;
     let angleY =
       player.y + Math.sin(player.angle + toRadians(step * i)) * SIGHT_DISTANCE;
+    let theta = Math.atan2(angleY, angleX);
 
-    ctxUI.beginPath();
-    ctxUI.strokeStyle = "white";
-    ctxUI.moveTo(player.x + 6, player.y + 6);
-    ctxUI.lineTo(angleX, angleY);
-    ctxUI.stroke();
-    ctxUI.closePath();
+    if(i % 30 == 0) {
+      ctxUI.beginPath();
+      ctxUI.strokeStyle = "white";
+      ctxUI.moveTo(player.x + 6, player.y + 6);
+      ctxUI.lineTo(angleX, angleY);
+      ctxUI.stroke();
+      ctxUI.closePath();
+    }
 
     for (let j = 0; j < mapLines.length; j++) {
       renderSceneSlice(
@@ -150,7 +158,7 @@ function castRays() {
           mapLines[j].lineToX,
           mapLines[j].lineToY
         ),
-        i
+        i, theta
       );
     }
   }
@@ -168,12 +176,12 @@ function renderSceneSlice(collisionPoint, drawPoint, angle) {
       collisionPoint.x,
       collisionPoint.y
     ) * 3;
-    let correctDist =  colDist * Math.cos(toRadians(45)); // Trying to fix fish eye, but doesn't work
+    let correctDist =  (colDist * Math.cos(player.angle - angle)) * 3; // Trying to fix fish eye, but doesn't work
     let colorShade = 255 - colDist / 2.5; // Gives slice darker color the further away the wall is
     ctx.fillStyle = "rgb(" + colorShade + ", " + colorShade + ", " + colorShade + ")";
     // colDist = colDist * Math.cos(angle);
-    let sliceVerticalOffset = correctDist / 2;
-    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - correctDist);
+    let sliceVerticalOffset = colDist / 2;
+    ctx.fillRect(drawPoint, sliceVerticalOffset, 1, 600 - colDist);
   }
 }
 
