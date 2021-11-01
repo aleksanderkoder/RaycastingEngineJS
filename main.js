@@ -215,13 +215,17 @@ function movePlayer(key) {
   // if(key.repeat) return;
   console.log(key.code);
   if (key.code == "KeyD") {
-    player.x += 6;
+    player.x = player.x + Math.cos(player.angle + toRadians(120)) * 3;
+    player.y = player.y + Math.sin(player.angle + toRadians(120)) * 3;
   } else if (key.code == "KeyA") {
-    player.x -= 6;
+    player.x = player.x + Math.cos(player.angle - toRadians(60)) * 3;
+    player.y = player.y + Math.sin(player.angle - toRadians(60)) * 3;
   } else if (key.code == "KeyW") {
-    player.y -= 6;
+    player.x = player.x + Math.cos(player.angle + toRadians(30)) * 3;
+    player.y = player.y + Math.sin(player.angle + toRadians(30)) * 3;
   } else if (key.code == "KeyS") { 
-    player.y += 6;
+    player.x = player.x + Math.cos(player.angle + toRadians(210)) * 3;
+    player.y = player.y + Math.sin(player.angle + toRadians(210)) * 3;
   } else if (key.code == "Space") {
     // if(key.repeat) return;
 
