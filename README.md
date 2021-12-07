@@ -7,6 +7,8 @@ The point of this prototype is to draw walls in pseudo-3D space using raycasting
 
 This will eventually be ported to C# .NET.  
 
+NOTE: This version has a "fish-eye" effect which will be fixed in later versions. 
+
 ## How to use
 
 Walk around using WASD and turn your field of view by moving the mouse horizontally.
