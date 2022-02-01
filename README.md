@@ -5,7 +5,7 @@ This is a simple prototype in early development.
 
 The point of this prototype is to draw walls in pseudo-3D space using raycasting. 
 
-This will eventually be ported to C# .NET.  
+This will eventually be ported to C++.  
 
 NOTE: This version has a "fish-eye" effect which will be fixed in later versions. 
 
